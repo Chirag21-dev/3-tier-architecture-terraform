@@ -11,7 +11,7 @@ resource "random_password" "db_password" {
 
 # VPC Module
 module "vpc" {
-  source = "../../modules/vpc"
+  source = "../../Modules/vpc"
 
   environment           = var.environment
   project               = var.project
@@ -28,7 +28,7 @@ module "vpc" {
 }
 
 module "security_groups" {
-  source = "../../modules/security-groups"
+  source = "../../Modules/security-groups"
 
   environment       = var.environment
   project           = var.project
@@ -40,7 +40,7 @@ module "security_groups" {
 
 # IAM Module
 module "iam" {
-  source = "../../modules/iam"
+  source = "../../Modules/iam"
 
   environment  = var.environment
   project      = var.project
@@ -51,7 +51,7 @@ module "iam" {
 
 # RDS Module
 module "rds" {
-  source = "../../modules/rds"
+  source = "../../Modules/rds"
 
   environment             = var.environment
   project                 = var.project
@@ -72,7 +72,7 @@ module "rds" {
 
 # Secrets Manager Module
 module "secrets" {
-  source = "../../modules/secrets"
+  source = "../../Modules/secrets"
 
   environment = var.environment
   project     = var.project
@@ -87,7 +87,7 @@ module "secrets" {
 
 # Bastion Module
 module "bastion" {
-  source = "../../modules/bastion"
+  source = "../../Modules/bastion"
 
   environment          = var.environment
   project              = var.project
@@ -102,7 +102,7 @@ module "bastion" {
 
 # Public Application Load Balancer Module (Frontend)
 module "alb" {
-  source = "../../modules/alb"
+  source = "../../Modules/alb"
 
   environment       = var.environment
   project           = var.project
@@ -118,7 +118,7 @@ module "alb" {
 
 # Internal Application Load Balancer Module (Backend)
 module "internal_alb" {
-  source = "../../modules/alb"
+  source = "../../Modules/alb"
 
   environment       = var.environment
   project           = var.project
@@ -133,17 +133,17 @@ module "internal_alb" {
 }
 
 module "frontend_asg" {
-  source = "../../modules/frontend-asg"
+  source = "../../Modules/frontend-asg"
 
   environment          = var.environment
   project              = var.project
   region               = var.region
   instance_type        = var.frontend_instance_type
   key_name             = var.ssh_key_name
-  iam_instance_profile = module.iam.ec2_instance_profile_name
-  security_group_id    = module.security_groups.frontend_sg_id
-  subnet_ids           = module.vpc.frontend_subnet_ids
-  target_group_arn     = module.alb.target_group_arn
+  iam_instance_profile = Module.iam.ec2_instance_profile_name
+  security_group_id    = Module.security_groups.frontend_sg_id
+  subnet_ids           = Module.vpc.frontend_subnet_ids
+  target_group_arn     = Module.alb.target_group_arn
   min_size             = var.frontend_min_size
   max_size             = var.frontend_max_size
   desired_capacity     = var.frontend_desired_capacity
@@ -159,7 +159,7 @@ module "frontend_asg" {
 }
 
 module "backend_asg" {
-  source = "../../modules/backend-asg"
+  source = "../../Modules/backend-asg"
 
   environment          = var.environment
   project              = var.project
