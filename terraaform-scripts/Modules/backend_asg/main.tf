@@ -26,7 +26,7 @@ resource "aws_launch_template" "backend" {
 
   vpc_security_group_ids = [var.security_group_id]
 
-  user_data = base64encode(templatefile("${path.root}/../../scripts/backend_user_data.sh", {
+  user_data = base64encode(templatefile("${path.root}/../../Scripts/backend_userdata.sh", {
     docker_image       = var.docker_image
     dockerhub_username = var.dockerhub_username
     dockerhub_password = var.dockerhub_password
