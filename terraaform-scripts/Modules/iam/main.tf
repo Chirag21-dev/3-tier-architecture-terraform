@@ -61,3 +61,15 @@ resource "aws_iam_role_policy_attachment" "secrets_manager" {
   role       = aws_iam_role.ec2_role.name
   policy_arn = aws_iam_policy.secrets_manager.arn
 }
+
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "${var.environment}-${var.project}-ec2-instance-profile"
+  role = aws_iam_role.ec2_role.name
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.environment}-${var.project}-ec2-instance-profile"
+    }
+  )
+}
