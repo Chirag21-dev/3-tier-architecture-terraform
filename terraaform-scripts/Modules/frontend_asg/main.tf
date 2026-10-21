@@ -158,3 +158,21 @@ resource "aws_cloudwatch_metric_alarm" "frontend_high_cpu" {
   tags = var.tags
 }
 
+resource "aws_cloudwatch_metric_alarm" "frontend_unhealthy" {
+  alarm_name          = "${var.environment}-${var.project}-frontend-unhealthy-hosts"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "UnHealthyHostCount"
+  namespace           = "AWS/ApplicationELB"
+  period              = 60
+  statistic           = "Average"
+  threshold           = 0
+  alarm_description   = "Alert when frontend instances are unhealthy"
+  alarm_actions       = var.alarm_actions
+
+  dimensions = {
+    TargetGroup = split(":", var.target_group_arn)[5]
+  }
+
+  tags = var.tags
+}
