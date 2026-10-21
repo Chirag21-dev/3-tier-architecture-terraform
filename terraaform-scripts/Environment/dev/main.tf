@@ -28,7 +28,7 @@ module "vpc" {
 }
 
 module "security_groups" {
-  source = "../../Modules/security-groups"
+  source = "../../Modules/security_group"
 
   environment       = var.environment
   project           = var.project
@@ -87,7 +87,7 @@ module "secrets" {
 
 # Bastion Module
 module "bastion" {
-  source = "../../Modules/bastion"
+  source = "../../Modules/bastion_host"
 
   environment          = var.environment
   project              = var.project
@@ -133,7 +133,7 @@ module "internal_alb" {
 }
 
 module "frontend_asg" {
-  source = "../../Modules/frontend-asg"
+  source = "../../Modules/frontend_asg"
 
   environment          = var.environment
   project              = var.project
@@ -159,7 +159,7 @@ module "frontend_asg" {
 }
 
 module "backend_asg" {
-  source = "../../Modules/backend-asg"
+  source = "../../Modules/backend_asg"
 
   environment          = var.environment
   project              = var.project
