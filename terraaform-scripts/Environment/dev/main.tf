@@ -157,3 +157,29 @@ module "frontend_asg" {
 
   depends_on = [module.rds, module.alb, module.internal_alb]
 }
+
+module "backend_asg" {
+  source = "../../modules/backend-asg"
+
+  environment          = var.environment
+  project              = var.project
+  region               = var.region
+  instance_type        = var.backend_instance_type
+  key_name             = var.ssh_key_name
+  iam_instance_profile = module.iam.ec2_instance_profile_name
+  security_group_id    = module.security_groups.backend_sg_id
+  subnet_ids           = module.vpc.backend_subnet_ids
+  target_group_arns    = [module.internal_alb.target_group_arn]
+  min_size             = var.backend_min_size
+  max_size             = var.backend_max_size
+  desired_capacity     = var.backend_desired_capacity
+
+  docker_image       = var.backend_docker_image
+  dockerhub_username = var.dockerhub_username
+  dockerhub_password = var.dockerhub_password
+  db_secret_arn      = module.secrets.db_secret_arn
+
+  tags = var.tags
+
+  depends_on = [module.rds, module.secrets]
+}
