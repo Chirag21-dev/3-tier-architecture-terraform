@@ -63,3 +63,15 @@ output "backend_asg_name" {
   description = "Name of backend Auto Scaling Group"
   value       = module.backend_asg.asg_name
 }
+
+output "helpful_commands" {
+  description = "Helpful commands for working with this infrastructure"
+  value       = <<-EOT
+    
+    ═══════════════════════════════════════════════════════════════════
+                    Goal Tracker Infrastructure - Dev
+    ═══════════════════════════════════════════════════════════════════
+    
+    🌐 Application URL:
+       http://${module.alb.alb_dns_name}
+EOT}
