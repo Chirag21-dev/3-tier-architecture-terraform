@@ -84,3 +84,76 @@ module "secrets" {
 
   tags = var.tags
 }
+
+# Bastion Module
+module "bastion" {
+  source = "../../modules/bastion"
+
+  environment          = var.environment
+  project              = var.project
+  instance_type        = var.bastion_instance_type
+  key_name             = var.ssh_key_name
+  subnet_id            = module.vpc.public_subnet_ids[0]
+  security_group_id    = module.security_groups.bastion_sg_id
+  iam_instance_profile = module.iam.ec2_instance_profile_name
+
+  tags = var.tags
+}
+
+# Public Application Load Balancer Module (Frontend)
+module "alb" {
+  source = "../../modules/alb"
+
+  environment       = var.environment
+  project           = var.project
+  name_prefix       = "public-"
+  internal          = false
+  vpc_id            = module.vpc.vpc_id
+  subnet_ids        = module.vpc.public_subnet_ids
+  security_group_id = module.security_groups.alb_sg_id
+  target_group_port = 3000
+
+  tags = var.tags
+}
+
+# Internal Application Load Balancer Module (Backend)
+module "internal_alb" {
+  source = "../../modules/alb"
+
+  environment       = var.environment
+  project           = var.project
+  name_prefix       = "internal-"
+  internal          = true
+  vpc_id            = module.vpc.vpc_id
+  subnet_ids        = module.vpc.frontend_subnet_ids # Note: Using Frontend subnets for reachability
+  security_group_id = module.security_groups.internal_alb_sg_id
+  target_group_port = 8080
+
+  tags = var.tags
+}
+
+module "frontend_asg" {
+  source = "../../modules/frontend-asg"
+
+  environment          = var.environment
+  project              = var.project
+  region               = var.region
+  instance_type        = var.frontend_instance_type
+  key_name             = var.ssh_key_name
+  iam_instance_profile = module.iam.ec2_instance_profile_name
+  security_group_id    = module.security_groups.frontend_sg_id
+  subnet_ids           = module.vpc.frontend_subnet_ids
+  target_group_arn     = module.alb.target_group_arn
+  min_size             = var.frontend_min_size
+  max_size             = var.frontend_max_size
+  desired_capacity     = var.frontend_desired_capacity
+
+  docker_image         = var.frontend_docker_image
+  dockerhub_username   = var.dockerhub_username
+  dockerhub_password   = var.dockerhub_password
+  backend_internal_url = "http://${module.internal_alb.alb_dns_name}"
+
+  tags = var.tags
+
+  depends_on = [module.rds, module.alb, module.internal_alb]
+}
